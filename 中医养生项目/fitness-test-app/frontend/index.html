@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中医体质测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#006633',
+                        secondary: '#4CAF50',
+                        neutral: '#F5F5F5',
+                        qiDeficiency: '#FFD700', // 气虚质
+                        yangDeficiency: '#FF8C00', // 阳虚质
+                        yinDeficiency: '#9370DB', // 阴虚质
+                        phlegmDampness: '#8FBC8F', // 痰湿质
+                        dampHeat: '#CD5C5C', // 湿热质
+                        bloodStasis: '#A52A2A', // 血瘀质
+                        qiStagnation: '#6495ED', // 气郁质
+                        specialDiathesis: '#DDA0DD', // 特禀质
+                        balanced: '#3CB371', // 平和质
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .test-card {
+                @apply bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl;
+            }
+            .result-card {
+                @apply bg-white rounded-xl shadow-lg p-6 border-t-4 transition-all duration-300;
+            }
+            .radio-option {
+                @apply relative inline-flex items-center cursor-pointer;
+            }
+            .radio-option input[type="radio"] {
+                @apply sr-only;
+            }
+            .radio-option .checkmark {
+                @apply absolute w-5 h-5 border-2 border-gray-300 rounded-full;
+            }
+            .radio-option input[type="radio"]:checked ~ .checkmark {
+                @apply border-primary;
+            }
+            .radio-option input[type="radio"]:checked ~ .checkmark:after {
+                @apply block;
+            }
+            .radio-option .checkmark:after {
+                @apply hidden absolute top-1 left-1 w-3 h-3 bg-primary rounded-full;
+                content: "";
+            }
+            .radio-option span {
+                @apply ml-6;
+            }
+            .scale-in {
+                animation: scaleIn 0.3s ease-in-out;
+            }
+            @keyframes scaleIn {
+                from { transform: scale(0.95); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="bg-neutral min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa fa-leaf text-2xl"></i>
+                <h1 class="text-xl font-bold">中医养生体质测试</h1>
+            </div>
+            <div class="flex space-x-4">
+                <a href="index.html" class="hover:text-gray-200 transition-colors">体质测试</a>
+                <a href="../../首页相关/中医科普线上预约.html" class="hover:text-gray-200 transition-colors">线上预约</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-primary mb-4">中医体质辨识</h2>
+            <p class="text-gray-700 mb-4">中医体质辨识是中医治未病的重要组成部分，通过填写以下问卷，系统将根据中医理论分析您的体质类型，并提供相应的养生建议。</p>
+            
+            <!-- 进度条 -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>完成进度</span>
+                    <span id="progressText">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试表单 -->
+        <form id="testForm" class="space-y-6">
+            <!-- 基本信息 -->
+            <div class="test-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-user-circle-o mr-2"></i>基本信息
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-gray-700 mb-1">姓名</label>
+                        <input type="text" id="name" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="age" class="block text-gray-700 mb-1">年龄</label>
+                        <input type="number" id="age" name="age" min="1" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="gender" class="block text-gray-700 mb-1">性别</label>
+                        <select id="gender" name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="height" class="block text-gray-700 mb-1">身高(cm)</label>
+                        <input type="number" id="height" name="height" min="50" max="250" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="weight" class="block text-gray-700 mb-1">体重(kg)</label>
+                        <input type="number" id="weight" name="weight" min="10" max="300" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生活习惯 -->
+            <div class="test-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-heartbeat mr-2"></i>生活习惯
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-1">睡眠情况</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="sleepTime" class="block text-gray-600 mb-1">睡眠时间</label>
+                                <select id="sleepTime" name="sleepTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                                    <option value="">请选择</option>
+                                    <option value="不足6小时">不足6小时</option>
+                                    <option value="6-7小时">6-7小时</option>
+                                    <option value="7-8小时">7-8小时</option>
+                                    <option value="8小时以上">8小时以上</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sleepQuality" class="block text-gray-600 mb-1">睡眠质量</label>
+                                <select id="sleepQuality" name="sleepQuality" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                                    <option value="">请选择</option>
+                                    <option value="入睡困难">入睡困难</option>
+                                    <option value="多梦易醒">多梦易醒</option>
+                                    <option value="睡眠浅">睡眠浅</option>
+                                    <option value="睡眠深沉">睡眠深沉</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="exerciseFreq" class="block text-gray-700 mb-1">运动频率</label>
+                        <select id="exerciseFreq" name="exerciseFreq" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="不运动">不运动</option>
+                            <option value="每周1-2次">每周1-2次</option>
+                            <option value="每周3-5次">每周3-5次</option>
+                            <option value="每周6-7次">每周6-7次</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="workStress" class="block text-gray-700 mb-1">工作压力</label>
+                        <select id="workStress" name="workStress" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="非常大">非常大</option>
+                            <option value="较大">较大</option>
+                            <option value="一般">一般</option>
+                            <option value="较小">较小</option>
+                            <option value="无压力">无压力</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="dietPref" class="block text-gray-700 mb-1">饮食偏好</label>
+                        <select id="dietPref" name="dietPref" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="辛辣油腻">辛辣油腻</option>
+                            <option value="清淡素食">清淡素食</option>
+                            <option value="肉食为主">肉食为主</option>
+                            <option value="均衡饮食">均衡饮食</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-1">您是否更喜欢热食？</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="preferHotFood" value="是" class="form-radio text-primary focus:ring-primary" required>
+                                <span class="ml-2">是</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="preferHotFood" value="否" class="form-radio text-primary focus:ring-primary">
+                                <span class="ml-2">否</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="preferHotFood" value="无明显偏好" class="form-radio text-primary focus:ring-primary">
+                                <span class="ml-2">无明显偏好</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 症状表现 -->
+            <div class="test-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-stethoscope mr-2"></i>症状表现
+                </h3>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">疲劳感</label>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="fatigueScore" value="1" class="form-radio text-primary focus:ring-primary" required>
+                                <span class="font-medium">1</span>
+                                <span class="text-xs">从不</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="fatigueScore" value="2" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">2</span>
+                                <span class="text-xs">偶尔</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="fatigueScore" value="3" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">3</span>
+                                <span class="text-xs">有时</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="fatigueScore" value="4" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">4</span>
+                                <span class="text-xs">经常</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="fatigueScore" value="5" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">5</span>
+                                <span class="text-xs">总是</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">手脚冰凉</label>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="coldHandsFeetScore" value="1" class="form-radio text-primary focus:ring-primary" required>
+                                <span class="font-medium">1</span>
+                                <span class="text-xs">从不</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="coldHandsFeetScore" value="2" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">2</span>
+                                <span class="text-xs">偶尔</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="coldHandsFeetScore" value="3" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">3</span>
+                                <span class="text-xs">有时</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="coldHandsFeetScore" value="4" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">4</span>
+                                <span class="text-xs">经常</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="coldHandsFeetScore" value="5" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">5</span>
+                                <span class="text-xs">总是</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">口干舌燥</label>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="dryMouthScore" value="1" class="form-radio text-primary focus:ring-primary" required>
+                                <span class="font-medium">1</span>
+                                <span class="text-xs">从不</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="dryMouthScore" value="2" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">2</span>
+                                <span class="text-xs">偶尔</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="dryMouthScore" value="3" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">3</span>
+                                <span class="text-xs">有时</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="dryMouthScore" value="4" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">4</span>
+                                <span class="text-xs">经常</span>
+                            </label>
+                            <label class="inline-flex flex-col items-center p-2 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="radio" name="dryMouthScore" value="5" class="form-radio text-primary focus:ring-primary">
+                                <span class="font-medium">5</span>
+                                <span class="text-xs">总是</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="bodyHeat" class="block text-gray-700 mb-1">身体发热部位（可多选）</label>
+                        <select id="bodyHeat" name="bodyHeat" multiple class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="无">无</option>
+                            <option value="头面部">头面部</option>
+                            <option value="手足心">手足心</option>
+                            <option value="全身">全身</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="stoolType" class="block text-gray-700 mb-1">大便情况</label>
+                        <select id="stoolType" name="stoolType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="干结难解">干结难解</option>
+                            <option value="正常成形">正常成形</option>
+                            <option value="溏稀不成形">溏稀不成形</option>
+                            <option value="黏滞不爽">黏滞不爽</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="mouthFeeling" class="block text-gray-700 mb-1">口腔感觉</label>
+                        <select id="mouthFeeling" name="mouthFeeling" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="口干">口干</option>
+                            <option value="口苦">口苦</option>
+                            <option value="口黏">口黏</option>
+                            <option value="口淡">口淡</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="mouthTaste" class="block text-gray-700 mb-1">口中味觉</label>
+                        <select id="mouthTaste" name="mouthTaste" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="甜">甜</option>
+                            <option value="苦">苦</option>
+                            <option value="酸">酸</option>
+                            <option value="咸">咸</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="mouthOdor" class="block text-gray-700 mb-1">口腔异味</label>
+                        <select id="mouthOdor" name="mouthOdor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="无">无</option>
+                            <option value="口臭">口臭</option>
+                            <option value="轻微异味">轻微异味</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 舌象与脉象 -->
+            <div class="test-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-medkit mr-2"></i>舌象与脉象
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="tongueColor" class="block text-gray-700 mb-1">舌质颜色</label>
+                        <select id="tongueColor" name="tongueColor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="淡红">淡红</option>
+                            <option value="淡白">淡白</option>
+                            <option value="红">红</option>
+                            <option value="绛红">绛红</option>
+                            <option value="紫暗">紫暗</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="tongueShape" class="block text-gray-700 mb-1">舌质形态</label>
+                        <select id="tongueShape" name="tongueShape" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="胖大">胖大</option>
+                            <option value="瘦薄">瘦薄</option>
+                            <option value="齿痕">齿痕</option>
+                            <option value="裂纹">裂纹</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="tongueCoating" class="block text-gray-700 mb-1">舌苔</label>
+                        <select id="tongueCoating" name="tongueCoating" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="薄白">薄白</option>
+                            <option value="厚白">厚白</option>
+                            <option value="薄黄">薄黄</option>
+                            <option value="厚黄">厚黄</option>
+                            <option value="少苔">少苔</option>
+                            <option value="无苔">无苔</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="pulse" class="block text-gray-700 mb-1">脉象</label>
+                        <select id="pulse" name="pulse" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="弦">弦</option>
+                            <option value="滑">滑</option>
+                            <option value="细">细</option>
+                            <option value="数">数</option>
+                            <option value="迟">迟</option>
+                            <option value="弱">弱</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 皮肤与过敏 -->
+            <div class="test-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-shield mr-2"></i>皮肤与过敏
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="skinCondition" class="block text-gray-700 mb-1">皮肤状况</label>
+                        <select id="skinCondition" name="skinCondition" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="干燥">干燥</option>
+                            <option value="油腻">油腻</option>
+                            <option value="痤疮">痤疮</option>
+                            <option value="湿疹">湿疹</option>
+                            <option value="荨麻疹">荨麻疹</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="skinColor" class="block text-gray-700 mb-1">皮肤颜色</label>
+                        <select id="skinColor" name="skinColor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="正常">正常</option>
+                            <option value="苍白">苍白</option>
+                            <option value="潮红">潮红</option>
+                            <option value="晦暗">晦暗</option>
+                            <option value="发黄">发黄</option>
+                        </select>
+                    </div>
+
+                    <div id="femaleSymptoms" style="display: none;">
+                        <label class="block text-gray-700 mb-1">女性特有症状</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="menstrualDisorder" class="block text-gray-600 mb-1">月经是否紊乱</label>
+                                <select id="menstrualDisorder" name="menstrualDisorder" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                    <option value="否">否</option>
+                                    <option value="是">是</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="painCharacter" class="block text-gray-600 mb-1">痛经性质</label>
+                                <select id="painCharacter" name="painCharacter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                    <option value="">请选择</option>
+                                    <option value="胀痛">胀痛</option>
+                                    <option value="刺痛">刺痛</option>
+                                    <option value="冷痛">冷痛</option>
+                                    <option value="隐痛">隐痛</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="chestDiscomfort" class="block text-gray-700 mb-1">是否有胸闷或乳房胀痛</label>
+                        <select id="chestDiscomfort" name="chestDiscomfort" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="否">否</option>
+                            <option value="是">是</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="emotionalStatus" class="block text-gray-700 mb-1">情绪状态</label>
+                        <select id="emotionalStatus" name="emotionalStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="稳定">稳定</option>
+                            <option value="抑郁">抑郁</option>
+                            <option value="焦虑">焦虑</option>
+                            <option value="易怒">易怒</option>
+                            <option value="善恐">善恐</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-1">过敏史</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="allergyHistory" class="block text-gray-600 mb-1">个人过敏史</label>
+                                <select id="allergyHistory" name="allergyHistory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                    <option value="否">否</option>
+                                    <option value="是">是</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="familyAllergyHistory" class="block text-gray-600 mb-1">家族过敏史</label>
+                                <select id="familyAllergyHistory" name="familyAllergyHistory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                                    <option value="否">否</option>
+                                    <option value="是">是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="skinReaction" class="block text-gray-700 mb-1">皮肤接触反应</label>
+                        <select id="skinReaction" name="skinReaction" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="无">无</option>
+                            <option value="风团">风团</option>
+                            <option value="皮疹">皮疹</option>
+                            <option value="瘙痒">瘙痒</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="respiratorySymptoms" class="block text-gray-700 mb-1">呼吸道症状</label>
+                        <select id="respiratorySymptoms" name="respiratorySymptoms" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                            <option value="">请选择</option>
+                            <option value="无">无</option>
+                            <option value="喷嚏">喷嚏</option>
+                            <option value="流涕">流涕</option>
+                            <option value="鼻塞">鼻塞</option>
+                            <option value="喘息">喘息</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="otherSymptoms" class="block text-gray-700 mb-1">其他症状或说明</label>
+                        <textarea id="otherSymptoms" name="otherSymptoms" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="flex justify-center">
+                <button type="submit" id="submitBtn" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <i class="fa fa-check-circle mr-2"></i>提交测试
+                </button>
+            </div>
+        </form>
+
+        <!-- 结果展示区域 -->
+        <div id="result-container" class="mt-10 hidden">
+            <!-- 结果将通过JavaScript动态填充 -->
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2023 中医养生体质测试系统 | 版权所有</p>
+            <p class="text-sm mt-2">本测试结果仅供参考，如有健康问题请咨询专业中医师</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取表单和结果容器
+            const testForm = document.getElementById('testForm');
+            const resultContainer = document.getElementById('result-container');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const genderSelect = document.getElementById('gender');
+            const femaleSymptoms = document.getElementById('femaleSymptoms');
+            
+            // 初始化女性特有症状显示
+            genderSelect.addEventListener('change', function() {
+                if (this.value === '女') {
+                    femaleSymptoms.style.display = 'block';
+                } else {
+                    femaleSymptoms.style.display = 'none';
+                }
+            });
+            
+            // 更新进度条
+            function updateProgress() {
+                const requiredFields = testForm.querySelectorAll('[required]');
+                let completedFields = 0;
+                
+                requiredFields.forEach(field => {
+                    if (field.type === 'radio') {
+                        const name = field.getAttribute('name');
+                        if (document.querySelector(`input[name="${name}"]:checked`)) {
+                            completedFields++;
+                        }
+                    } else if (field.type === 'checkbox') {
+                        if (field.checked) {
+                            completedFields++;
+                        }
+                    } else if (field.type === 'select-multiple') {
+                        if (field.selectedOptions.length > 0) {
+                            completedFields++;
+                        }
+                    } else {
+                        if (field.value.trim() !== '') {
+                            completedFields++;
+                        }
+                    }
+                });
+                
+                const progressPercentage = Math.round((completedFields / requiredFields.length) * 100);
+                progressBar.style.width = `${progressPercentage}%`;
+                progressText.textContent = `${progressPercentage}%`;
+            }
+            
+            // 为所有必填字段添加输入事件监听
+            const requiredFields = testForm.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (field.type === 'radio') {
+                    const name = field.getAttribute('name');
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                        radio.addEventListener('change', updateProgress);
+                    });
+                } else if (field.type === 'checkbox') {
+                    field.addEventListener('change', updateProgress);
+                } else if (field.type === 'select-multiple') {
+                    field.addEventListener('change', updateProgress);
+                } else {
+                    field.addEventListener('input', updateProgress);
+                }
+            });
+            
+            // 初始化进度条
+            updateProgress();
+            
+            // 提交表单时阻止默认行为
+            testForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 验证表单
+                if (!testForm.checkValidity()) {
+                    testForm.reportValidity();
+                    return;
+                }
+                
+                // 收集表单数据
+                const formData = new FormData(testForm);
+                const testResults = {};
+                
+                formData.forEach((value, key) => {
+                    if (testResults[key]) {
+                        if (!Array.isArray(testResults[key])) {
+                            testResults[key] = [testResults[key]];
+                        }
+                        testResults[key].push(value);
+                    } else {
+                        testResults[key] = value;
+                    }
+                });
+                
+                // 分析体质类型
+                const constitutionType = analyzeConstitution(testResults);
+                
+                // 显示结果
+                displayResults(testResults, constitutionType);
+            });
+            
+            // 分析体质类型的函数
+            function analyzeConstitution(results) {
+                // 这里实现中医体质分析算法
+                // 实际应用中，这应该是一个复杂的算法，根据各项指标综合评估
+                // 这里仅作为示例，使用简化的规则
+                
+                let scores = {
+                    balanced: 0,       // 平和质
+                    qiDeficiency: 0,   // 气虚质
+                    yangDeficiency: 0, // 阳虚质
+                    yinDeficiency: 0,  // 阴虚质
+                    phlegmDampness: 0, // 痰湿质
+                    dampHeat: 0,       // 湿热质
+                    bloodStasis: 0,    // 血瘀质
+                    qiStagnation: 0,   // 气郁质
+                    specialDiathesis: 0 // 特禀质
+                };
+                
+                // 根据症状表现评分
+                // 疲劳感评分 - 气虚质
+                if (results.fatigueScore) {
+                    scores.qiDeficiency += parseInt(results.fatigueScore) * 0.3;
+                }
+                
+                // 手脚冰凉评分 - 阳虚质
+                if (results.coldHandsFeetScore) {
+                    scores.yangDeficiency += parseInt(results.coldHandsFeetScore) * 0.3;
+                }
+                
+                // 口干舌燥评分 - 阴虚质
+                if (results.dryMouthScore) {
+                    scores.yinDeficiency += parseInt(results.dryMouthScore) * 0.3;
+                }
+                
+                // 大便情况评分
+                if (results.stoolType) {
+                    if (results.stoolType === '溏稀不成形' || results.stoolType === '黏滞不爽') {
+                        scores.phlegmDampness += 0.3;
+                    } else if (results.stoolType === '干结难解') {
+                        scores.yinDeficiency += 0.3;
+                    }
+                }
+                
+                // 口腔感觉评分
+                if (results.mouthFeeling) {
+                    if (results.mouthFeeling === '口干') {
+                        scores.yinDeficiency += 0.2;
+                    } else if (results.mouthFeeling === '口苦') {
+                        scores.dampHeat += 0.2;
+                    } else if (results.mouthFeeling === '口黏') {
+                        scores.phlegmDampness += 0.2;
+                    } else if (results.mouthFeeling === '口淡') {
+                        scores.qiDeficiency += 0.2;
+                    }
+                }
+                
+                // 舌质颜色评分
+                if (results.tongueColor) {
+                    if (results.tongueColor === '淡白') {
+                        scores.qiDeficiency += 0.3;
+                        scores.yangDeficiency += 0.2;
+                    } else if (results.tongueColor === '红' || results.tongueColor === '绛红') {
+                        scores.yinDeficiency += 0.3;
+                        scores.dampHeat += 0.2;
+                    } else if (results.tongueColor === '紫暗') {
+                        scores.bloodStasis += 0.3;
+                    }
+                }
+                
+                // 舌质形态评分
+                if (results.tongueShape) {
+                    if (results.tongueShape === '胖大' || results.tongueShape === '齿痕') {
+                        scores.phlegmDampness += 0.3;
+                    } else if (results.tongueShape === '瘦薄') {
+                        scores.yinDeficiency += 0.3;
+                    } else if (results.tongueShape === '裂纹') {
+                        scores.yinDeficiency += 0.2;
+                    }
+                }
+                
+                // 舌苔评分
+                if (results.tongueCoating) {
+                    if (results.tongueCoating === '厚白') {
+                        scores.phlegmDampness += 0.3;
+                    } else if (results.tongueCoating === '厚黄') {
+                        scores.dampHeat += 0.3;
+                    } else if (results.tongueCoating === '少苔' || results.tongueCoating === '无苔') {
+                        scores.yinDeficiency += 0.3;
+                    }
+                }
+                
+                // 脉象评分
+                if (results.pulse) {
+                    if (results.pulse === '弱') {
+                        scores.qiDeficiency += 0.3;
+                        scores.yangDeficiency += 0.2;
+                    } else if (results.pulse === '数') {
+                        scores.yinDeficiency += 0.3;
+                    } else if (results.pulse === '弦') {
+                        scores.qiStagnation += 0.3;
+                    } else if (results.pulse === '滑') {
+                        scores.phlegmDampness += 0.3;
+                    } else if (results.pulse === '细') {
+                        scores.yinDeficiency += 0.2;
+                        scores.bloodStasis += 0.2;
+                    }
+                }
+                
+                // 情绪状态评分
+                if (results.emotionalStatus) {
+                    if (results.emotionalStatus === '抑郁' || results.emotionalStatus === '焦虑') {
+                        scores.qiStagnation += 0.3;
+                    } else if (results.emotionalStatus === '易怒') {
+                        scores.dampHeat += 0.2;
+                        scores.qiStagnation += 0.2;
+                    } else if (results.emotionalStatus === '善恐') {
+                        scores.yangDeficiency += 0.2;
+                    }
+                }
+                
+                // 过敏史评分
+                if (results.allergyHistory === '是' || results.familyAllergyHistory === '是') {
+                    scores.specialDiathesis += 0.3;
+                }
+                
+                // 皮肤状况评分
+                if (results.skinCondition) {
+                    if (results.skinCondition === '干燥') {
+                        scores.yinDeficiency += 0.2;
+                    } else if (results.skinCondition === '油腻' || results.skinCondition === '痤疮') {
+                        scores.dampHeat += 0.2;
+                    } else if (results.skinCondition === '湿疹' || results.skinCondition === '荨麻疹') {
+                        scores.specialDiathesis += 0.2;
+                    }
+                }
+                
+                // 计算平和质分数 (总分减去其他体质的分数)
+                let totalScore = 0;
+                for (const type in scores) {
+                    if (type !== 'balanced') {
+                        totalScore += scores[type];
+                    }
+                }
+                scores.balanced = 10 - totalScore;
+                
+                // 找出得分最高的体质类型
+                let maxScore = 0;
+                let mainConstitution = 'balanced';
+                
+                for (const type in scores) {
+                    if (scores[type] > maxScore) {
+                        maxScore = scores[type];
+                        mainConstitution = type;
+                    }
+                }
+                
+                // 确保分数在0-10之间
+                for (const type in scores) {
+                    scores[type] = Math.max(0, Math.min(10, scores[type]));
+                }
+                
+                return {
+                    mainType: mainConstitution,
+                    scores: scores
+                };
+            }
+            
+            // 显示测试结果
+            function displayResults(results, constitutionType) {
+                // 清空结果容器
+                resultContainer.innerHTML = '';
+                resultContainer.classList.remove('hidden');
+                
+                // 滚动到结果区域
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+                
+                // 定义体质类型的中文名称和描述
+                const constitutionTypes = {
+                    balanced: {
+                        name: '平和质',
+                        description: '阴阳气血调和，以体态适中、面色红润、精力充沛等为主要特征。',
+                        diet: '饮食均衡，多吃五谷杂粮、蔬菜瓜果，节制油腻、辛辣食物。',
+                        lifestyle: '作息规律，坚持锻炼，保持心情舒畅。',
+                        color: 'balanced'
+                    },
+                    qiDeficiency: {
+                        name: '气虚质',
+                        description: '元气不足，以疲乏、气短、自汗等气虚表现为主要特征。',
+                        diet: '宜食具有益气健脾作用的食物，如小米、粳米、糯米、黄豆、白扁豆、香菇、大枣、桂圆、蜂蜜等。',
+                        lifestyle: '起居有规律，避免过度劳累，适当进行有氧运动，如散步、太极拳等。',
+                        color: 'qiDeficiency'
+                    },
+                    yangDeficiency: {
+                        name: '阳虚质',
+                        description: '阳气不足，以畏寒怕冷、手足不温等虚寒表现为主要特征。',
+                        diet: '宜食温热性食物，如羊肉、牛肉、鸡肉、韭菜、辣椒、生姜、桂圆、核桃等。',
+                        lifestyle: '注意保暖，避免受凉，适当进行户外活动，多晒太阳。',
+                        color: 'yangDeficiency'
+                    },
+                    yinDeficiency: {
+                        name: '阴虚质',
+                        description: '阴液亏少，以口燥咽干、手足心热等虚热表现为主要特征。',
+                        diet: '宜食滋阴润燥的食物，如芝麻、糯米、绿豆、乌贼、龟、鳖、海参、鲍鱼、牛奶、牡蛎、蛤蜊、海蜇、鸭肉、猪皮等。',
+                        lifestyle: '避免熬夜，保持充足睡眠，避免剧烈运动，可选择太极拳、瑜伽等运动。',
+                        color: 'yinDeficiency'
+                    },
+                    phlegmDampness: {
+                        name: '痰湿质',
+                        description: '痰湿凝聚，以形体肥胖、腹部肥满、口黏苔腻等痰湿表现为主要特征。',
+                        diet: '宜食清淡、健脾利湿的食物，如冬瓜、萝卜、薏米、赤小豆、荷叶、山楂、鲫鱼等。',
+                        lifestyle: '坚持运动，控制体重，避免潮湿环境，饮食不宜过饱。',
+                        color: 'phlegmDampness'
+                    },
+                    dampHeat: {
+                        name: '湿热质',
+                        description: '湿热内蕴，以面垢油光、口苦、苔黄腻等湿热表现为主要特征。',
+                        diet: '宜食清热利湿的食物，如绿豆、赤小豆、苦瓜、黄瓜、芹菜、冬瓜、藕、薏苡仁、莲子、茯苓等。',
+                        lifestyle: '避免熬夜，保持充足睡眠，注意个人卫生，避免长期处于潮湿环境。',
+                        color: 'dampHeat'
+                    },
+                    bloodStasis: {
+                        name: '血瘀质',
+                        description: '血行不畅，以肤色晦暗、舌质紫暗等血瘀表现为主要特征。',
+                        diet: '宜食活血化瘀的食物，如山楂、桃仁、油菜、慈姑、黑大豆、黑木耳、海带、紫菜等。',
+                        lifestyle: '保持心情舒畅，适当进行有氧运动，如散步、慢跑、太极拳等。',
+                        color: 'bloodStasis'
+                    },
+                    qiStagnation: {
+                        name: '气郁质',
+                        description: '气机郁滞，以神情抑郁、忧虑脆弱等气郁表现为主要特征。',
+                        diet: '宜食行气解郁的食物，如佛手、橙子、柑皮、荞麦、韭菜、大蒜、高粱、刀豆、蘑菇等。',
+                        lifestyle: '多参加社交活动，培养兴趣爱好，保持心情舒畅，适当进行有氧运动。',
+                        color: 'qiStagnation'
+                    },
+                    specialDiathesis: {
+                        name: '特禀质',
+                        description: '先天失常，以生理缺陷、过敏反应等为主要特征。',
+                        diet: '饮食宜清淡、均衡，粗细搭配适当，荤素配伍合理。避免食用辛辣、腥发及含致敏物质的食物。',
+                        lifestyle: '避免接触过敏原，保持室内清洁，适当进行有氧运动，增强体质。',
+                        color: 'specialDiathesis'
+                    }
+                };
+                
+                // 获取主要体质类型的信息
+                const mainTypeInfo = constitutionTypes[constitutionType.mainType];
+                
+                // 创建结果卡片
+                const resultCard = document.createElement('div');
+                resultCard.className = `result-card border-${mainTypeInfo.color} scale-in`;
+                resultCard.innerHTML = `
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+                        <div class="flex items-center mb-4 md:mb-0">
+                            <div class="w-16 h-16 rounded-full bg-${mainTypeInfo.color} flex items-center justify-center text-white text-2xl">
+                                <i class="fa fa-heartbeat"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-${mainTypeInfo.color}">${mainTypeInfo.name}</h3>
+                                <p class="text-gray-600">您的主要体质类型</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">测试时间</p>
+                            <p class="font-semibold">${new Date().toLocaleString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-2">体质特征</h4>
+                        <p class="text-gray-700">${mainTypeInfo.description}</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-2">饮食建议</h4>
+                        <p class="text-gray-700">${mainTypeInfo.diet}</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-2">生活方式</h4>
+                        <p class="text-gray-700">${mainTypeInfo.lifestyle}</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">体质评分</h4>
+                        <div class="space-y-4">
+                            ${Object.entries(constitutionType.scores).map(([type, score]) => {
+                                const typeInfo = constitutionTypes[type];
+                                const percentage = Math.round(score * 10);
+                                return `
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm font-medium">${typeInfo.name}</span>
+                                            <span class="text-sm font-medium">${score.toFixed(1)}/10</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-${typeInfo.color} h-2.5 rounded-full" style="width: ${percentage}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // 添加结果卡片到容器
+                resultContainer.appendChild(resultCard);
+                
+                // 添加重新测试按钮
+                const retestButton = document.createElement('div');
+                retestButton.className = 'flex justify-center mt-8';
+                retestButton.innerHTML = `
+                    <button id="retestBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-full shadow transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        <i class="fa fa-refresh mr-2"></i>重新测试
+                    </button>
+                `;
+                
+                resultContainer.appendChild(retestButton);
+                
+                // 重新测试按钮点击事件
+                document.getElementById('retestBtn').addEventListener('click', function() {
+                    testForm.reset();
+                    resultContainer.classList.add('hidden');
+                    updateProgress();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+/* 全局样式 */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.top-bar {
+    background-color: #006633;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    margin-right: 20px;
+    border-radius: 10px;
+    background-image: url('logo.png'); /* 可替换为实际的 logo 图片 */
+    background-size: cover;
+    background-position: center;
+}
+
+.text h1 {
+    margin: 0;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.text h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.reservation-form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin: 30px auto;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #006633;
+    outline: none;
+}
+
+.checkbox-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.submit-btn {
+    background-color: #006633;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #004d26;
+}

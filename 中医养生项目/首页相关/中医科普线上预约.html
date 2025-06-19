@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中医科普线上预约</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#006633',
+                        secondary: '#4CAF50',
+                        neutral: '#F5F5F5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .form-card {
+                @apply bg-white rounded-xl shadow-lg p-6 mb-6 transition-all duration-300 hover:shadow-xl;
+            }
+            .success-message {
+                @apply bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg mb-6 hidden;
+            }
+            .error-message {
+                @apply bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6 hidden;
+            }
+            .scale-in {
+                animation: scaleIn 0.3s ease-in-out;
+            }
+            @keyframes scaleIn {
+                from { transform: scale(0.95); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+        }
+    </style>
+    <!-- 添加 Tailwind 基础样式 -->
+    <style>
+        @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+    </style>
+</head>
+<body class="bg-neutral min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa fa-leaf text-2xl"></i>
+                <h1 class="text-xl font-bold">中医科普线上预约</h1>
+            </div>
+            <div class="flex space-x-4">
+                <a href="../fitness-test-app/frontend/index.html" class="hover:text-gray-200 transition-colors">体质测试</a>
+                <a href="中医科普线上预约.html" class="hover:text-gray-200 transition-colors">线上预约</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-primary mb-4">中医科普线上预约</h2>
+            <p class="text-gray-700 mb-4">请填写以下信息进行预约，我们的专业中医师将为您提供咨询服务。</p>
+        </div>
+
+        <!-- 预约成功消息 -->
+        <div id="successMessage" class="success-message">
+            <div class="flex items-center">
+                <i class="fa fa-check-circle text-xl mr-3"></i>
+                <div>
+                    <h3 class="font-medium">预约提交成功！</h3>
+                    <p id="successText">我们将尽快与您联系。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预约失败消息 -->
+        <div id="errorMessage" class="error-message">
+            <div class="flex items-center">
+                <i class="fa fa-exclamation-circle text-xl mr-3"></i>
+                <div>
+                    <h3 class="font-medium">预约提交失败</h3>
+                    <p id="errorText">请检查您的网络连接或稍后再试。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预约表单 -->
+        <form id="reservationForm" class="space-y-6">
+            <!-- 预约信息 -->
+            <div class="form-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-calendar-check-o mr-2"></i>预约信息
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="date" class="block text-gray-700 mb-1">预约日期</label>
+                        <input type="date" id="date" name="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="region" class="block text-gray-700 mb-1">预约地区</label>
+                        <select id="region" name="region" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="北京">北京</option>
+                            <option value="上海">上海</option>
+                            <option value="广州">广州</option>
+                            <option value="深圳">深圳</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="address" class="block text-gray-700 mb-1">详细地址</label>
+                        <input type="text" id="address" name="address" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 课程选择 -->
+            <div class="form-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-book mr-2"></i>课程选择
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="category" class="block text-gray-700 mb-1">课程类别</label>
+                        <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                            <option value="">请选择</option>
+                            <option value="中医基础理论">中医基础理论</option>
+                            <option value="中医诊断学">中医诊断学</option>
+                            <option value="中药方剂学">中药方剂学</option>
+                            <option value="中医养生">中医养生</option>
+                            <option value="中医针灸">中医针灸</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">选择课程（可多选）</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="中医理论入门" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">中医理论入门</span>
+                            </label>
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="中医体质辨识" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">中医体质辨识</span>
+                            </label>
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="中药配伍应用" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">中药配伍应用</span>
+                            </label>
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="针灸基础" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">针灸基础</span>
+                            </label>
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="中医养生功法" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">中医养生功法</span>
+                            </label>
+                            <label class="inline-flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="course" value="中医食疗" class="form-checkbox text-primary focus:ring-primary">
+                                <span class="ml-2">中医食疗</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="classInfo" class="block text-gray-700 mb-1">课程需求说明</label>
+                        <textarea id="classInfo" name="classInfo" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系方式 -->
+            <div class="form-card">
+                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <i class="fa fa-phone mr-2"></i>联系方式
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="contactName" class="block text-gray-700 mb-1">联系人姓名</label>
+                        <input type="text" id="contactName" name="contactName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="contactPhone" class="block text-gray-700 mb-1">联系电话</label>
+                        <input type="tel" id="contactPhone" name="contactPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="flex justify-center">
+                <button type="submit" id="submitBtn" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <i class="fa fa-check-circle mr-2"></i>提交预约
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 中医科普线上预约系统 | 版权所有</p>
+            <p class="text-sm mt-2">本系统仅提供预约服务，具体诊疗请遵医嘱</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取表单和消息元素
+            const reservationForm = document.getElementById('reservationForm');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const successText = document.getElementById('successText');
+            const errorText = document.getElementById('errorText');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // 表单提交事件
+            reservationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 隐藏之前的消息
+                successMessage.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                
+                // 禁用提交按钮，防止重复提交
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>提交中...';
+                
+                // 收集表单数据
+                const formData = new FormData(reservationForm);
+                const data = {};
+                
+                formData.forEach((value, key) => {
+                    if (data[key]) {
+                        if (!Array.isArray(data[key])) {
+                            data[key] = [data[key]];
+                        }
+                        data[key].push(value);
+                    } else {
+                        data[key] = value;
+                    }
+                });
+                
+                // 发送AJAX请求到后端 - 修改为实际的后端API地址
+                fetch('/api/submit_reservation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => {
+                    // 检查响应状态
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('提交成功:', result);
+                    // 处理响应结果
+                    if (result.success) {
+                        // 显示成功消息
+                        successText.textContent = result.message || '预约已成功提交，我们将尽快与您联系！';
+                        successMessage.classList.remove('hidden');
+                        successMessage.classList.add('scale-in');
+                        
+                        // 重置表单
+                        reservationForm.reset();
+                    } else {
+                        // 显示错误消息
+                        errorText.textContent = result.error || '提交预约失败，请稍后再试。';
+                        errorMessage.classList.remove('hidden');
+                        errorMessage.classList.add('scale-in');
+                    }
+                })
+                .catch(error => {
+                    console.error('提交预约时出错:', error);
+                    // 显示网络错误消息
+                    errorText.textContent = '网络连接错误，请检查您的网络设置或稍后再试。';
+                    errorMessage.classList.remove('hidden');
+                    errorMessage.classList.add('scale-in');
+                })
+                .finally(() => {
+                    // 重新启用提交按钮
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa fa-check-circle mr-2"></i>提交预约';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

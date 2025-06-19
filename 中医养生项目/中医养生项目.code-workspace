@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "C:/Users/小娜/Downloads/前端工作代码"
+		},
+		{
+			"path": "../fitness-test-app"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "fitness-test-app"
+	}
+}
